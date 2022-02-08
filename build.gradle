@@ -1,0 +1,55 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.3'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id 'jacoco'
+}
+
+group = 'cl.globalLogic'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+	    exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	  }
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.6.3'
+    implementation ('org.springframework.boot:spring-boot-starter-web')
+    implementation ('org.springframework.boot:spring-boot-starter-data-jpa')
+    
+    implementation ('com.h2database:h2')
+    implementation group: 'org.projectlombok', name: 'lombok', version: '1.18.22'
+    annotationProcessor 'org.projectlombok:lombok'
+
+	implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.6.4'
+	
+	implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '7.0.2.Final'
+	implementation group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+
+	implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.0.0'
+	implementation('io.jsonwebtoken:jjwt:0.2')
+	
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport  
+}
+
+jacoco {
+  toolVersion = '0.8.7'
+}
+
+jacocoTestReport {
+  reports {
+    html.enabled = true
+  }
+}
+test.finalizedBy jacocoTestReport
