@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -33,9 +34,9 @@ class UserControllerTest {
 	
 	private UserRepository userRepo = Mockito.mock(UserRepository.class);
 	private PhoneRepository phoneRepo = Mockito.mock(PhoneRepository.class);
-	
+	private ModelMapper modelMapper = new ModelMapper();
 	private PasswordServiceImpl password = new PasswordServiceImpl();
-	private UserServicesImpl service = new UserServicesImpl(userRepo, phoneRepo, password);
+	private UserServicesImpl service = new UserServicesImpl(userRepo, phoneRepo, password,modelMapper);
 	
 	private UserController userController = new UserController(service);
 	

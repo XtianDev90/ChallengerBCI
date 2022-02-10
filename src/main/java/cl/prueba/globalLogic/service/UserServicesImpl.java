@@ -6,7 +6,6 @@ import static java.util.Collections.emptyList;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,8 +39,7 @@ public class UserServicesImpl implements IUserServices, UserDetailsService{
 	protected final UserRepository userRepo;
 	protected final PhoneRepository phoneRepo;
 	protected final IPasswordService passwordService;
-	
-	private ModelMapper modelMapper = new ModelMapper();
+	protected final ModelMapper modelMapper;
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
