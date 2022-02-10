@@ -7,9 +7,7 @@ _Ejercicio BCI para registrar un usuario, obtener un id de tipo UUDI y obtener u
 _Descargar proyecto desde repositorio_
 
 ```
-$ git clone https://github.com/XtianDev90/globalLogic.git
-$ cd globalLogic/
-$ cd globalLogic/
+$ git clone https://github.com/XtianDev90/ChallengerBCI.git
 ```
 _Luego para compilar desde una ventana de comando en la carpeta del proyecto_
 
