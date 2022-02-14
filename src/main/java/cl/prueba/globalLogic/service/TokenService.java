@@ -12,7 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import cl.prueba.globalLogic.dto.UserDTO;
+import cl.prueba.globalLogic.dto.UserResponseDTO;
 import cl.prueba.globalLogic.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -44,9 +44,9 @@ public class TokenService {
             authentication = new UsernamePasswordAuthenticationToken(userDetails, "", new ArrayList<>());
         }
         if (authentication != null && details.get("user") != null) {
-            UserDTO userDTO = (UserDTO) details.get("user");
-            userDTO.setLastLogin(LocalDateTime.now());
-            userService.update(userDTO);
+            UserResponseDTO userResponseDTO = (UserResponseDTO) details.get("user");
+            userResponseDTO.setLastLogin(LocalDateTime.now());
+            userService.update(userResponseDTO);
         }
         return authentication;
     }

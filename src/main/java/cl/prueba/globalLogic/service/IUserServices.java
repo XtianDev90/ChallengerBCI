@@ -3,20 +3,21 @@ package cl.prueba.globalLogic.service;
 import java.util.Map;
 import java.util.Optional;
 
-import cl.prueba.globalLogic.dto.UserDTO;
+import cl.prueba.globalLogic.dto.UserRequestDTO;
+import cl.prueba.globalLogic.dto.UserResponseDTO;
 import cl.prueba.globalLogic.entity.User;
 
 public interface IUserServices {
 
-	UserDTO createUser(User user);
+	UserResponseDTO createUser(UserRequestDTO user);
 	
-	UserDTO getUserById(String id);
+	UserResponseDTO getUserById(String id);
 	
-	UserDTO findByEmail(String email);
+	UserResponseDTO findByEmail(String email);
 	
 	Map<String, Object> getDetails(String email);
 	
-	UserDTO update(UserDTO userDTO);
+	UserResponseDTO update(UserResponseDTO userResponseDTO);
 	
 	Optional<User> findByToken(String token);
 }

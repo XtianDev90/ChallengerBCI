@@ -84,7 +84,8 @@ public class User implements Serializable {
 
 	@PrePersist
     private void prePersist(){
-        this.created = LocalDateTime.now();
+		this.created = LocalDateTime.now();
+		this.lastLogin = LocalDateTime.now();
     }
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

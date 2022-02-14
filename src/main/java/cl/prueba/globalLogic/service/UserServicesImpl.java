@@ -4,14 +4,11 @@ import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyList;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import cl.prueba.globalLogic.dto.PhoneRequestDTO;
+import cl.prueba.globalLogic.dto.UserRequestDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,7 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cl.prueba.globalLogic.dto.UserDTO;
+import cl.prueba.globalLogic.dto.UserResponseDTO;
 import cl.prueba.globalLogic.entity.Phone;
 import cl.prueba.globalLogic.entity.User;
 import cl.prueba.globalLogic.exception.AlreadyExistException;
@@ -43,66 +40,62 @@ public class UserServicesImpl implements IUserServices, UserDetailsService{
 	
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public UserDTO createUser(User userReq) {
-		UserDTO response = null;
+	public UserResponseDTO createUser(UserRequestDTO userReq) {
+		UserResponseDTO response = null;
+		User user = modelMapper.map(userReq, User.class);
+		user.setPassword(passwordService.hash(userReq.getPassword()));
+		user.setToken(createToken(userReq.getEmail()));
+		user.setCreated(LocalDateTime.now());
+		user.setLastLogin(LocalDateTime.now());
+		user.setActive(true);
 		
-		userReq.setPassword(passwordService.hash(userReq.getPassword()));
-		userReq.setToken(createToken(userReq.getEmail()));
-        
-		userReq.setLastLogin(LocalDateTime.now());
-		userReq.setActive(true);
-		
-		Optional<User> existe = this.userRepo.findByEmail(userReq.getEmail());
+		Optional<User> existe = this.userRepo.findByEmail(user.getEmail());
 		if(existe.isPresent()){
 			throw new AlreadyExistException("Usuario ya existe con email : " + userReq.getEmail());
 			
 		}
 
-		User userDb = this.userRepo.save(userReq);
-		Set<Phone> phones = userReq.getPhones();
-		userReq.getPhones().addAll((phones.stream().map(phone -> {
+		User userDb = this.userRepo.save(user);
+		Set<PhoneRequestDTO> phones = userReq.getPhones();
+		userDb.getPhones().addAll((phones.stream().map(phone -> {
 
 			Phone telefono = new Phone();
 			telefono.setCitycode(phone.getCitycode());
 			telefono.setContrycode(phone.getContrycode().toUpperCase().trim());
 			telefono.setNumber(phone.getNumber());
-			telefono.setUser(userReq);
+			telefono.setUser(userDb);
 			phoneRepo.save(telefono);
 			return telefono;
 
 		}).collect(Collectors.toList())));
 
-		User userSaved = this.userRepo.save(userReq);
-		if(userDb != null) {
-			response = modelMapper.map(userSaved, UserDTO.class);
-		}
-		return response;
+		User userSaved = this.userRepo.save(userDb);
+		return modelMapper.map(userSaved, UserResponseDTO.class);
 	}
 
 	@Override
-	public UserDTO getUserById(String id) {
+	public UserResponseDTO getUserById(String id) {
 		UUID uuid = UUID.fromString(id);
 		
 		Optional<User> userDb = this.userRepo.findByIdUser(uuid);
 		if(userDb.isPresent()){
-			UserDTO response = modelMapper.map(userDb.get(), UserDTO.class);
-			return response;
+			return modelMapper.map(userDb.get(), UserResponseDTO.class);
 		}else {
 			throw new ResourceNotFoundException("Usuario no encontrado con id : " + id);
 		}
 	}
 
 	@Override
-    public UserDTO findByEmail(String email) {
+    public UserResponseDTO findByEmail(String email) {
         User user = userRepo.findByEmail(email).orElse(new User());
-        return modelMapper.map(user, UserDTO.class);
+        return modelMapper.map(user, UserResponseDTO.class);
     }
 	
 	@Override
 	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-		UserDTO userDto = findByEmail(email);
-		User user = modelMapper.map(userDto, User.class);
-		UUID uuid = UUID.fromString(userDto.getIdUser());
+		UserResponseDTO userResponseDto = findByEmail(email);
+		User user = modelMapper.map(userResponseDto, User.class);
+		UUID uuid = UUID.fromString(userResponseDto.getIdUser());
 		user.setIdUser(uuid);
         if (user.getEmail() == null) {
             throw new UsernameNotFoundException(email);
@@ -116,19 +109,19 @@ public class UserServicesImpl implements IUserServices, UserDetailsService{
         Map<String, Object> details = new HashMap<>();
         UserDetails userDetails = loadUserByUsername(email);
         if (userDetails != null) {
-            UserDTO userDTO = findByEmail(email);
-            details.put("user", userDTO);
+            UserResponseDTO userResponseDTO = findByEmail(email);
+            details.put("user", userResponseDTO);
             details.put("userDetails", userDetails);
         }
         return details;
     }
 	
 	@Override
-    public UserDTO update(UserDTO userDto) {
-		User user = modelMapper.map(userDto, User.class);
-		UUID uuid = UUID.fromString(userDto.getIdUser());
+    public UserResponseDTO update(UserResponseDTO userResponseDto) {
+		User user = modelMapper.map(userResponseDto, User.class);
+		UUID uuid = UUID.fromString(userResponseDto.getIdUser());
 		user.setIdUser(uuid);
-        return modelMapper.map(userRepo.save(user), UserDTO.class);
+        return modelMapper.map(userRepo.save(user), UserResponseDTO.class);
     }
 	
 	@Override
